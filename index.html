@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>XE ĐỤNG KIẾN THỨC - TOÁN 10</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    }
+    .font-game {
+      font-family: 'Fredoka', cursive;
+    }
+    /* Dynamic neon floor grid effect */
+    .arena-bg {
+      background-color: #111827;
+      background-image: 
+        radial-gradient(rgba(59, 130, 246, 0.12) 1.5px, transparent 1.5px),
+        radial-gradient(rgba(147, 51, 234, 0.08) 1.5px, transparent 1.5px);
+      background-size: 36px 36px;
+      background-position: 0 0, 18px 18px;
+    }
+    /* Cartoon Bumper border glow */
+    .bumper-border {
+      box-shadow: inset 0 0 25px rgba(236, 72, 153, 0.45), 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+    /* Touch d-pad button active styles */
+    .dpad-btn:active {
+      transform: scale(0.92);
+      filter: brightness(1.25);
+    }
+    /* Custom scrollbar for review section */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 8px;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 1.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="h-screen w-screen flex flex-col items-center justify-between text-white select-none relative">
+  <!-- TOP HEADER HUD -->
+  <header class="w-full max-w-7xl mx-auto px-3 py-2 z-20 flex items-center justify-between gap-2 flex-wrap">
+    <!-- Game Logo & Level Badge -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-700/80 px-3 py-1.5 rounded-2xl shadow-lg backdrop-blur-md">
+        <span class="text-2xl animate-bounce">🚗</span>
+        <div>
+          <h1 class="font-game font-bold text-lg md:text-xl text-yellow-400 leading-tight tracking-wider">
+            XE ĐỤNG KIẾN THỨC
+          </h1>
+          <p class="text-[10px] text-slate-300 font-semibold tracking-wide">TOÁN 10 • HỆ THỨC LƯỢNG</p>
+        </div>
+      </div>
+      <div id="levelBadge" class="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-game font-bold text-xs md:text-sm px-3 py-1.5 rounded-xl shadow-md uppercase tracking-wider">
+        <span id="levelText">Level 1</span>
+      </div>
+    </div>
+
+    <!-- Live Stats Bar (Score, Combo, Timer) -->
+    <div id="liveHud" class="hidden flex items-center gap-2 md:gap-4 bg-slate-800/85 border border-slate-700/80 px-3 py-1.5 rounded-2xl shadow-lg backdrop-blur-md text-xs md:text-sm">
+      <div id="studentPill" class="hidden sm:flex items-center gap-1.5 text-slate-200 font-bold bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-700">
+        <span class="text-sm">🧑‍🎓</span>
+        <span id="hudStudentInfo" class="text-xs text-indigo-300 truncate max-w-[150px]">Học sinh</span>
+      </div>
+      <div class="hidden sm:block h-4 w-px bg-slate-700"></div>
+      <div class="flex items-center gap-1.5 text-yellow-300 font-bold">
+        <span>⭐</span>
+        <span class="text-slate-400 font-normal">Điểm:</span>
+        <span id="scoreDisplay" class="font-game text-base md:text-lg text-yellow-400">0</span>
+      </div>
+      <div class="h-4 w-px bg-slate-700"></div>
+      <div class="flex items-center gap-1.5 font-bold">
+        <span>🔥</span>
+        <span id="comboDisplay" class="text-emerald-400 font-game text-sm md:text-base">x1</span>
+      </div>
+      <div class="h-4 w-px bg-slate-700"></div>
+      <div class="flex items-center gap-1.5 font-bold text-sky-400">
+        <span>⏱️</span>
+        <span id="timerDisplay" class="font-mono text-sm md:text-base">00:00</span>
+      </div>
+    </div>
+
+    <!-- Quick Action Control Buttons -->
+    <div class="flex items-center gap-1.5 md:gap-2">
+      <button id="btnOpenQR" class="p-2 md:px-3 md:py-2 bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white font-bold rounded-xl transition text-sm flex items-center gap-1 shadow" title="Mở mã QR để học sinh quét vào game">
+        <span>📱</span>
+        <span class="hidden md:inline text-xs font-semibold">Mã QR</span>
+      </button>
+      <button id="btnSound" class="p-2 md:px-3 md:py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl transition text-sm flex items-center gap-1 shadow" title="Bật/Tắt Âm thanh">
+        <span id="soundIcon">🔊</span>
+        <span class="hidden md:inline text-xs font-semibold">Âm thanh</span>
+      </button>
+      <button id="btnGuide" class="p-2 md:px-3 md:py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl transition text-sm flex items-center gap-1 shadow" title="Hướng dẫn cách chơi">
+        <span>❓</span>
+        <span class="hidden md:inline text-xs font-semibold">Hướng dẫn</span>
+      </button>
+      <button id="btnRestart" class="p-2 md:px-3 md:py-2 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold rounded-xl transition text-sm flex items-center gap-1 shadow" title="Chơi lại từ đầu">
+        <span>🔄</span>
+        <span class="hidden md:inline text-xs font-semibold">Chơi lại</span>
+      </button>
+      <button id="btnFullscreen" class="p-2 md:px-3 md:py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl transition text-sm flex items-center gap-1 shadow" title="Toàn màn hình">
+        <span>⛶</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MISSION / QUESTION BANNER -->
+  <div id="questionContainer" class="hidden w-full max-w-5xl mx-auto px-3 z-20 transition-all duration-300">
+    <div class="bg-gradient-to-r from-slate-900/95 via-indigo-950/95 to-slate-900/95 border-2 border-indigo-500/40 shadow-2xl rounded-2xl p-2.5 md:p-3.5 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-3">
+      <!-- Question Prompt & Diagram -->
+      <div class="flex items-center gap-3 w-full">
+        <!-- Optional Dynamic SVG Unit Circle for Questions 1 & 2 -->
+        <div id="diagramBox" class="hidden flex-shrink-0 bg-slate-950/80 p-1.5 rounded-xl border border-indigo-500/30">
+          <canvas id="diagramCanvas" width="90" height="90" class="w-[75px] h-[75px] md:w-[90px] md:h-[90px]"></canvas>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-0.5">
+            <span id="questionCategory" class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-indigo-300 bg-indigo-900/70 px-2 py-0.5 rounded-md border border-indigo-500/30">
+              NHIỆM VỤ ĐỤNG XE
+            </span>
+            <span id="questionStep" class="text-[10px] md:text-xs font-semibold text-slate-400">Câu 1/12</span>
+          </div>
+          <h2 id="questionText" class="font-game font-semibold text-sm md:text-base lg:text-lg text-white leading-tight">
+            Đang tải dữ liệu câu hỏi...
+          </h2>
+          <p id="subHint" class="text-[11px] md:text-xs text-amber-300/90 font-medium mt-0.5">
+            👉 Lái xe của bạn húc trúng chiếc xe mang đáp án chính xác!
+          </p>
+        </div>
+      </div>
+      <!-- Power-Up & Status Indicators -->
+      <div id="powerupStatus" class="hidden md:flex items-center gap-2 flex-shrink-0">
+        <div id="speedBuff" class="hidden items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-1 rounded-lg text-xs font-bold">
+          ⚡ Tăng tốc!
+        </div>
+        <div id="slowBuff" class="hidden items-center gap-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-1 rounded-lg text-xs font-bold">
+          ⏱️ Làm chậm!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN ARENA CANVAS CONTAINER -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-2 py-1 relative flex items-center justify-center min-h-0">
+    <div id="arenaWrapper" class="relative w-full h-full rounded-3xl overflow-hidden arena-bg border-4 border-indigo-600/60 bumper-border flex items-center justify-center shadow-2xl">
+      <!-- The dynamic bumper arena canvas -->
+      <canvas id="gameCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+      <!-- Central Floating Toast / Collision Banner -->
+      <div id="collisionAlert" class="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 transform scale-50 transition-all duration-300 z-30 text-center">
+        <div id="collisionAlertBox" class="px-6 py-3 rounded-2xl shadow-2xl font-game font-extrabold text-lg md:text-2xl tracking-wider text-white border-2">
+          VA CHẠM CHÍNH XÁC!
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TOUCH CONTROLS (Responsive for phones, tablets & smartboards) -->
+  <div id="touchControls" class="w-full max-w-4xl mx-auto px-4 py-1.5 flex items-center justify-between z-20">
+    <!-- Directional D-Pad -->
+    <div class="relative w-32 h-32 md:w-36 md:h-36 grid grid-cols-3 grid-rows-3 gap-1 p-1 bg-slate-900/70 border border-slate-700/60 rounded-3xl backdrop-blur-sm shadow-xl">
+      <div></div>
+      <button id="btnUp" class="dpad-btn bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-2xl flex items-center justify-center text-xl font-bold shadow active:bg-indigo-600">
+        ⬆️
+      </button>
+      <div></div>
+
+      <button id="btnLeft" class="dpad-btn bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-2xl flex items-center justify-center text-xl font-bold shadow active:bg-indigo-600">
+        ⬅️
+      </button>
+      <div class="flex items-center justify-center text-slate-500 font-game text-[10px]">LÁI</div>
+      <button id="btnRight" class="dpad-btn bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-2xl flex items-center justify-center text-xl font-bold shadow active:bg-indigo-600">
+        ➡️
+      </button>
+
+      <div></div>
+      <button id="btnDown" class="dpad-btn bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-2xl flex items-center justify-center text-xl font-bold shadow active:bg-indigo-600">
+        ⬇️
+      </button>
+      <div></div>
+    </div>
+
+    <!-- Quick Touch Action Buttons (Boost & Horn) -->
+    <div class="flex flex-col gap-2 items-center">
+      <button id="btnTurbo" class="dpad-btn px-4 py-3 bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 border border-yellow-300 rounded-2xl font-game font-bold text-xs md:text-sm text-white shadow-lg flex items-center gap-1.5">
+        <span>⚡</span>
+        <span>TĂNG TỐC</span>
+      </button>
+      <span class="text-[10px] text-slate-400 hidden sm:inline">Phím tắt: W,A,S,D hoặc ⬆️⬇️⬅️➡️</span>
+    </div>
+  </div>
+
+  <!-- MODAL 1: START SCREEN -->
+  <div id="modalStart" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-gradient-to-b from-slate-900 via-slate-850 to-indigo-950 border-2 border-indigo-500/50 rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl text-center relative overflow-hidden">
+      <div class="absolute -top-12 -right-12 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="text-5xl md:text-6xl mb-3 animate-bounce">🏎️💨</div>
+      <h2 class="font-game font-bold text-2xl md:text-4xl text-yellow-400 tracking-wider mb-2">
+        XE ĐỤNG KIẾN THỨC
+      </h2>
+      <p class="text-sm md:text-base text-indigo-200 font-semibold mb-4">
+        TOÁN 10 - GIÁ TRỊ LƯỢNG GIÁC CỦA MỘT GÓC TỪ 0° ĐẾN 180°
+      </p>
+
+      <!-- FORM ĐIỀN THÔNG TIN HỌC SINH -->
+      <div class="bg-slate-950/85 border-2 border-indigo-500/50 rounded-2xl p-4 text-left mb-4 shadow-xl">
+        <div class="flex items-center justify-between mb-2.5">
+          <h3 class="font-game font-bold text-yellow-400 text-xs md:text-sm flex items-center gap-1.5">
+            <span>✍️</span> ĐIỀN THÔNG TIN THÍ SINH VÀO THI:
+          </h3>
+          <span class="text-[10px] text-slate-400 italic">* Bắt buộc để ghi nhận kết quả</span>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 mb-1">Họ và Tên <span class="text-rose-400">*</span></label>
+            <input id="inputName" type="text" placeholder="VD: Nguyễn Văn An" autocomplete="off" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-xl text-white text-xs md:text-sm outline-none transition font-medium">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 mb-1">Lớp học <span class="text-rose-400">*</span></label>
+            <input id="inputClass" type="text" placeholder="VD: 10A1" autocomplete="off" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-xl text-white text-xs md:text-sm outline-none transition font-medium">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 mb-1">Số thứ tự (STT) <span class="text-rose-400">*</span></label>
+            <input id="inputSTT" type="number" min="1" max="100" placeholder="VD: 15" autocomplete="off" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-xl text-white text-xs md:text-sm outline-none transition font-medium">
+          </div>
+        </div>
+
+        <!-- Inline validation message (No alert() used) -->
+        <div id="formError" class="hidden mt-2.5 p-2 bg-rose-950/70 border border-rose-600/60 rounded-xl text-rose-300 text-xs font-semibold flex items-center gap-1.5 animate-pulse">
+          <span>⚠️</span>
+          <span id="formErrorMsg">Vui lòng điền đầy đủ Họ tên, Lớp và Số thứ tự!</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 text-left text-xs md:text-sm text-slate-300 space-y-2 mb-6">
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-400 font-bold text-base">🎯</span>
+          <span><strong>Mục tiêu:</strong> Điều khiển xe của bạn lao tới và va chạm đúng vào xe chở <strong>đáp án chính xác</strong> theo từng câu hỏi!</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-yellow-400 font-bold text-base">⭐</span>
+          <span><strong>Luật chơi:</strong> Chạm đúng được <strong>VA CHẠM CHÍNH XÁC!</strong> (+Điểm & Combo x2/x3). Chạm sai bị <strong>ĐỤNG NHẦM XE!</strong> (mất combo, xe giật lùi).</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-purple-400 font-bold text-base">🏆</span>
+          <span><strong>4 Level & BOSS:</strong> Vượt qua 4 cấp độ và đánh bại <strong>BOSS 5 XE CUỐI CÙNG</strong> để chinh phục đỉnh cao!</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button id="btnStartGame" class="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white font-game font-bold text-base md:text-lg rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition">
+          🚀 VÀO ĐUA NGAY
+        </button>
+        <button id="btnStartQR" class="w-full sm:w-auto px-5 py-3.5 bg-indigo-700 hover:bg-indigo-600 text-white font-game font-semibold text-sm md:text-base rounded-2xl shadow active:scale-95 transition flex items-center justify-center gap-1.5">
+          <span>📱</span> MÃ QR VÀO GAME
+        </button>
+        <button id="btnOpenGuide" class="w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-game font-semibold text-sm md:text-base rounded-2xl border border-slate-700 active:scale-95 transition">
+          📖 HƯỚNG DẪN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: DETAILED GUIDE MODAL -->
+  <div id="modalGuide" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-game font-bold text-xl md:text-2xl text-yellow-400 flex items-center gap-2">
+          <span>📖</span> HƯỚNG DẪN & CƠ CHẾ XE ĐỤNG
+        </h3>
+        <button id="btnCloseGuide" class="text-slate-400 hover:text-white text-2xl font-bold p-1">✕</button>
+      </div>
+
+      <div class="overflow-y-auto pr-2 space-y-4 my-4 text-xs md:text-sm text-slate-300">
+        <!-- Controls guide -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-indigo-400 mb-2 flex items-center gap-1.5">
+            <span>🎮</span> CÁCH ĐIỀU KHIỂN XE
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li><strong>Bàn phím:</strong> Dùng 4 phím Mũi tên (⬆️ ⬇️ ⬅️ ➡️) hoặc cụm <strong>W - A - S - D</strong>.</li>
+            <li><strong>Cảm ứng / Chuột:</strong> Bấm phím D-Pad góc dưới hoặc chạm giữ/kéo trên màn hình để xe rẽ theo ngón tay.</li>
+            <li><strong>Tăng tốc:</strong> Nhấn nút <strong>⚡ TĂNG TỐC</strong> hoặc phím <strong>Space</strong> (Phím cách).</li>
+          </ul>
+        </div>
+
+        <!-- 4 Levels & Items -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-1.5">
+            <span>🚦</span> 4 CẤP ĐỘ & VẬT PHẨM ĐẶC BIỆT
+          </h4>
+          <ul class="space-y-1.5">
+            <li><strong>Level 1:</strong> Xe di chuyển chậm, 3 xe lựa chọn để làm quen đường đua.</li>
+            <li><strong>Level 2:</strong> Tốc độ nhanh hơn, 4 xe xuất hiện đồng thời cùng <strong>Xe Vàng (+100 điểm)</strong>.</li>
+            <li><strong>Level 3:</strong> Xe đổi hướng liên tục và xuất hiện <strong>Xe Nhiễu (Cảnh sát/Chướng ngại)</strong> cản đường!</li>
+            <li><strong>Level 4:</strong> Chuỗi rút gọn & tính toán lượng giác giới hạn thời gian.</li>
+            <li><strong>🌟 BOSS 5 XE:</strong> Chạm đúng liên tiếp 5 xe mang 5 kiến thức cốt lõi trước khi đếm ngược kết thúc!</li>
+          </ul>
+        </div>
+
+        <!-- Scoring & Combo -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+          <h4 class="font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+            <span>⚡</span> COMBO & TÍNH ĐIỂM
+          </h4>
+          <p>Chạm đúng: <strong>+100 điểm x Hệ số Combo</strong> (x1 ➔ x2 ➔ x3). Chạm nhầm xe: <strong>Mất combo</strong> và xe bị khựng lại!</p>
+        </div>
+      </div>
+
+      <div class="pt-2 text-center">
+        <button id="btnGuideUnderstood" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-game font-semibold rounded-xl transition">
+          ĐÃ HIỂU, VÀO ĐUA!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2.5: QR CODE SCAN MODAL -->
+  <div id="modalQR" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-slate-900 to-indigo-950 border-2 border-indigo-500/60 rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl relative text-center">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="font-game font-bold text-lg md:text-xl text-yellow-400 flex items-center gap-2">
+          <span>📱</span> MÃ QR VÀO GAME
+        </h3>
+        <button id="btnCloseQR" class="text-slate-400 hover:text-white text-2xl font-bold p-1">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-300 mb-3">
+        Dùng Camera điện thoại hoặc Zalo quét mã dưới đây để mở game trực tiếp trên máy:
+      </p>
+
+      <!-- Pure SVG/Canvas QR Code Container -->
+      <div class="flex items-center justify-center p-3.5 bg-white rounded-2xl max-w-[220px] mx-auto shadow-2xl border-4 border-indigo-400">
+        <div id="qrcodeBox" class="flex items-center justify-center min-h-[190px]"></div>
+      </div>
+
+      <!-- Quick Copy Link Bar -->
+      <div class="mt-4 bg-slate-950 p-2 rounded-xl border border-slate-800 flex items-center justify-between gap-2 text-left">
+        <input id="qrLinkInput" type="text" readonly class="bg-transparent text-slate-400 text-[11px] truncate w-full outline-none font-mono px-1">
+        <button id="btnCopyLink" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-game text-xs rounded-lg font-bold flex-shrink-0 transition">
+          Sao chép link
+        </button>
+      </div>
+      <span id="copyToast" class="text-[11px] text-emerald-400 font-bold opacity-0 transition-opacity duration-300 mt-1 block">
+        ✅ Đã sao chép link game vào bộ nhớ tạm!
+      </span>
+
+      <div class="mt-4 pt-2 border-t border-slate-800">
+        <button id="btnQRCloseBottom" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-game font-semibold rounded-xl transition text-sm">
+          Đóng cửa sổ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: GAME OVER & SUMMARY SCREEN -->
+  <div id="modalResult" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-3 overflow-y-auto">
+    <div class="bg-gradient-to-b from-slate-900 to-indigo-950 border-2 border-indigo-500/60 rounded-3xl max-w-2xl w-full p-5 md:p-7 shadow-2xl text-center max-h-[92vh] flex flex-col">
+      <!-- Result Title -->
+      <div id="resultHeaderIcon" class="text-5xl mb-1 animate-bounce">🏆</div>
+      <h2 id="resultTitle" class="font-game font-bold text-2xl md:text-3xl text-yellow-400 tracking-wider">
+        CHINH PHỤC XE ĐỤNG KIẾN THỨC!
+      </h2>
+      <p id="resultSubtitle" class="text-xs md:text-sm text-indigo-200 mb-4">
+        Bạn đã hoàn thành xuất sắc các chặng đua lượng giác lớp 10!
+      </p>
+
+      <!-- BẢNG THÔNG TIN THÍ SINH KẾT THÚC BÀI THI -->
+      <div class="bg-slate-950/90 border border-indigo-500/50 rounded-2xl p-3 mb-3 text-left flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🧑‍🎓</span>
+          <div>
+            <span class="text-slate-400 text-[10px] block uppercase font-bold">Thí sinh</span>
+            <span id="resStudentName" class="font-bold text-white text-sm">---</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="text-center sm:text-left">
+            <span class="text-slate-400 text-[10px] block uppercase font-bold">Lớp</span>
+            <span id="resStudentClass" class="font-bold text-amber-300 text-sm">---</span>
+          </div>
+          <div class="text-center sm:text-left">
+            <span class="text-slate-400 text-[10px] block uppercase font-bold">STT</span>
+            <span id="resStudentSTT" class="font-bold text-emerald-400 text-sm">---</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scoreboard cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3 mb-4 text-left">
+        <div class="bg-slate-950/80 border border-slate-800 p-2.5 rounded-2xl text-center">
+          <span class="text-[11px] text-slate-400 uppercase font-bold">Tổng Điểm</span>
+          <p id="resScore" class="font-game text-xl md:text-2xl text-yellow-400 font-bold">0</p>
+        </div>
+        <div class="bg-slate-950/80 border border-slate-800 p-2.5 rounded-2xl text-center">
+          <span class="text-[11px] text-slate-400 uppercase font-bold">Combo Cao Nhất</span>
+          <p id="resCombo" class="font-game text-xl md:text-2xl text-emerald-400 font-bold">x1</p>
+        </div>
+        <div class="bg-slate-950/80 border border-slate-800 p-2.5 rounded-2xl text-center">
+          <span class="text-[11px] text-slate-400 uppercase font-bold">Đúng / Sai</span>
+          <p class="font-game text-lg md:text-xl font-bold">
+            <span id="resCorrect" class="text-green-400">0</span> / <span id="resWrong" class="text-rose-400">0</span>
+          </p>
+        </div>
+        <div class="bg-slate-950/80 border border-slate-800 p-2.5 rounded-2xl text-center">
+          <span class="text-[11px] text-slate-400 uppercase font-bold">Thời Gian</span>
+          <p id="resTime" class="font-mono text-base md:text-xl text-sky-400 font-bold">00:00</p>
+        </div>
+      </div>
+
+      <!-- Review Section: KIẾN THỨC CẦN ÔN LẠI -->
+      <div class="flex-1 overflow-y-auto text-left pr-1.5 space-y-2 mb-4 bg-slate-950/70 p-3 rounded-2xl border border-slate-800">
+        <h4 class="font-game font-bold text-sm md:text-base text-amber-400 flex items-center gap-1.5">
+          <span>📚</span> KIẾN THỨC CẦN ÔN LẠI & GIẢI CHI TIẾT
+        </h4>
+        <p class="text-[11px] text-slate-400">Tổng hợp toàn bộ kiến thức trọng tâm từ 12 câu trắc nghiệm đề thi:</p>
+        
+        <div id="reviewContainer" class="space-y-2 text-xs">
+          <!-- Dynamic review cards generated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
+        <button id="btnPlayAgain" class="flex-1 min-w-[140px] px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-game font-bold text-sm md:text-base rounded-xl shadow-lg active:scale-95 transition">
+          🔄 CHƠI LẠI
+        </button>
+        <button id="btnBackHome" class="flex-1 min-w-[140px] px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-game font-semibold text-sm md:text-base rounded-xl border border-slate-700 active:scale-95 transition">
+          🏠 TRANG CHỦ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Web Audio API Synthesizer (Zero External Dependencies)
+     * Provides playful cartoon bleeps, bumper impacts, rewards and background loop
+     */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+        this.bgmTimer = null;
+        this.step = 0;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        if (this.isMuted) {
+          this.stopBgm();
+        } else {
+          this.startBgm();
+        }
+        return this.isMuted;
+      }
+
+      // VA CHẠM CHÍNH XÁC: Upbeat sparkling chime
+      playCorrect() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.07);
+          osc.stop(now + idx * 0.07 + 0.26);
+        });
+      }
+
+      // ĐỤNG NHẦM XE: Cartoon boing / bonk sound
+      playWrong() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.28);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.29);
+      }
+
+      // Rubber bumper bounce
+      playBump() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.13);
+      }
+
+      // Golden item pickup
+      playPowerup() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.2);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.23);
+      }
+
+      // Boss Victory Fanfare
+      playVictory() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const fanfare = [
+          { f: 523.25, t: 0.0, d: 0.15 },
+          { f: 659.25, t: 0.15, d: 0.15 },
+          { f: 783.99, t: 0.3, d: 0.18 },
+          { f: 1046.5, t: 0.5, d: 0.45 }
+        ];
+        fanfare.forEach(item => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(item.f, now + item.t);
+          gain.gain.setValueAtTime(0.28, now + item.t);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + item.t + item.d);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + item.t);
+          osc.stop(now + item.t + item.d + 0.01);
+        });
+      }
+
+      // Lightweight synthesized cheerful background groove
+      startBgm() {
+        if (this.isMuted || this.bgmTimer) return;
+        this.init();
+        const bassLine = [130.81, 146.83, 164.81, 174.61, 196.00]; // C, D, E, F, G
+        this.bgmTimer = setInterval(() => {
+          if (this.isMuted || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const freq = bassLine[this.step % bassLine.length];
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.035, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+          this.step++;
+        }, 400);
+      }
+
+      stopBgm() {
+        if (this.bgmTimer) {
+          clearInterval(this.bgmTimer);
+          this.bgmTimer = null;
+        }
+      }
+    }
+
+    const audio = new SoundEngine();
+
+    /**
+     * Strict Database: 12 multiple choice questions from Part I of the exam document
+     */
+    const QUESTION_BANK = [
+      {
+        id: 1,
+        level: 1,
+        question: "Trên nửa đường tròn đơn vị cho điểm M sao cho góc xOM = α (như hình, α nhọn). Tìm mệnh đề đúng:",
+        diagram: "q1",
+        correctText: "sin α > 0",
+        options: [
+          { text: "sin α > 0", isCorrect: true },
+          { text: "sin α < 0", isCorrect: false },
+          { text: "sin α = 0", isCorrect: false },
+          { text: "sin α = 1", isCorrect: false }
+        ],
+        explanation: "Với góc nhọn 0° < α < 90°, điểm M nằm ở góc phần tư thứ I có tung độ y > 0 nên sin α > 0."
+      },
+      {
+        id: 2,
+        level: 1,
+        question: "Trên nửa đường tròn đơn vị cho điểm M sao cho góc xOM = α (như hình, α tù). Tìm mệnh đề đúng:",
+        diagram: "q2",
+        correctText: "cos α < 0",
+        options: [
+          { text: "cos α > 0", isCorrect: false },
+          { text: "cos α < 0", isCorrect: true },
+          { text: "cos α = 0", isCorrect: false },
+          { text: "cos α = -1", isCorrect: false }
+        ],
+        explanation: "Với góc tù 90° < α < 180°, điểm M nằm ở góc phần tư thứ II có hoành độ x < 0 nên cos α < 0."
+      },
+      {
+        id: 3,
+        level: 2,
+        question: "Cho góc α = góc xOM với điểm M(-1/3; 2√2/3) trên nửa đường tròn đơn vị. Giá trị của tan α là:",
+        diagram: null,
+        correctText: "tan α = -2√2",
+        options: [
+          { text: "tan α = -1/(2√2)", isCorrect: false },
+          { text: "tan α = -2√2", isCorrect: true },
+          { text: "tan α = (2√2-1)/3", isCorrect: false },
+          { text: "tan α = -2√2/9", isCorrect: false }
+        ],
+        explanation: "Theo định nghĩa: tan α = y/x = (2√2/3) : (-1/3) = -2√2."
+      },
+      {
+        id: 4,
+        level: 2,
+        question: "Cho góc α = góc xOM với điểm M(1/3; 2√2/3) trên nửa đường tròn đơn vị. Giá trị của cot α là:",
+        diagram: null,
+        correctText: "cot α = 1/(2√2)",
+        options: [
+          { text: "cot α = 1/(2√2)", isCorrect: true },
+          { text: "cot α = 2√2", isCorrect: false },
+          { text: "cot α = (2√2-1)/3", isCorrect: false },
+          { text: "cot α = 2√2/9", isCorrect: false }
+        ],
+        explanation: "Theo định nghĩa: cot α = x/y = (1/3) : (2√2/3) = 1/(2√2)."
+      },
+      {
+        id: 5,
+        level: 3,
+        question: "Biểu thức E = sin(180°-x) - 2cos(90°-x) + cos x.tan x (x ≠ 90°) thu gọn bằng:",
+        diagram: null,
+        correctText: "E = 0",
+        options: [
+          { text: "E = 0", isCorrect: true },
+          { text: "E = -2 sin x", isCorrect: false },
+          { text: "E = sin x", isCorrect: false },
+          { text: "E = -2 cos x", isCorrect: false }
+        ],
+        explanation: "Ta có: sin(180°-x) = sin x; cos(90°-x) = sin x; cos x . tan x = sin x. Vậy E = sin x - 2 sin x + sin x = 0."
+      },
+      {
+        id: 6,
+        level: 4,
+        question: "Cho tam giác ABC, tính giá trị biểu thức P = sin A.cos(B+C) + cos A.sin(B+C):",
+        diagram: null,
+        correctText: "P = 0",
+        options: [
+          { text: "P = 0", isCorrect: true },
+          { text: "P = 1", isCorrect: false },
+          { text: "P = -1", isCorrect: false },
+          { text: "P = 2", isCorrect: false }
+        ],
+        explanation: "Vì B+C = 180°-A nên cos(B+C) = -cos A và sin(B+C) = sin A. Biểu thức P = -sin A cos A + cos A sin A = 0."
+      },
+      {
+        id: 7,
+        level: 3,
+        question: "Rút gọn biểu thức A = -sin(180°-x) + cos(180°-x) + cos x ta được:",
+        diagram: null,
+        correctText: "A = -sin x",
+        options: [
+          { text: "A = -sin x", isCorrect: true },
+          { text: "A = sin x", isCorrect: false },
+          { text: "A = 2 sin x", isCorrect: false },
+          { text: "A = cos x", isCorrect: false }
+        ],
+        explanation: "-sin(180°-x) = -sin x; cos(180°-x) = -cos x. Do đó A = -sin x - cos x + cos x = -sin x."
+      },
+      {
+        id: 8,
+        level: 2,
+        question: "Cho cos α = 4/5 với 0° < α < 90°. Tính sin α:",
+        diagram: null,
+        correctText: "sin α = 3/5",
+        options: [
+          { text: "sin α = 1/5", isCorrect: false },
+          { text: "sin α = -1/5", isCorrect: false },
+          { text: "sin α = 3/5", isCorrect: true },
+          { text: "sin α = ±3/5", isCorrect: false }
+        ],
+        explanation: "Với 0° < α < 90°, sin α > 0. Áp dụng sin²α + cos²α = 1 => sin α = √(1 - 16/25) = 3/5."
+      },
+      {
+        id: 9,
+        level: 4,
+        question: "Cho cot α = -3√2 với 90° < α < 180°. Giá trị sin α + (cos α)/√2 bằng:",
+        diagram: null,
+        correctText: "-2√19 / 19",
+        options: [
+          { text: "-2√19 / 19", isCorrect: true },
+          { text: "2√19 / 19", isCorrect: false },
+          { text: "-√19 / 19", isCorrect: false },
+          { text: "√19 / 19", isCorrect: false }
+        ],
+        explanation: "1/sin²α = 1 + cot²α = 1 + 18 = 19 => sin α = 1/√19. cos α = cot α . sin α = -3√2/√19. Biểu thức = 1/√19 - 3/√19 = -2/√19 = -2√19/19."
+      },
+      {
+        id: 10,
+        level: 4,
+        question: "Cho sin α = 3/5 (90° < α < 180°). Tính P = cot(180° - α):",
+        diagram: null,
+        correctText: "P = 4/3",
+        options: [
+          { text: "P = 3/4", isCorrect: false },
+          { text: "P = -3/4", isCorrect: false },
+          { text: "P = -4/3", isCorrect: false },
+          { text: "P = 4/3", isCorrect: true }
+        ],
+        explanation: "Với 90° < α < 180°, cos α = -√(1 - 9/25) = -4/5 => cot α = -4/3. Khi đó P = cot(180°-α) = -cot α = 4/3."
+      },
+      {
+        id: 11,
+        level: 4,
+        question: "Cho góc α thỏa mãn 0° < α < 180°, cos α = -1/3, sin α = (2√2)/3. Khẳng định nào sau đây SAI?",
+        diagram: null,
+        correctText: "sin(180°-α) = -(√2)/3",
+        options: [
+          { text: "tan α = -2√2", isCorrect: false },
+          { text: "cot α = -√2/4", isCorrect: false },
+          { text: "sin(180°-α) = -(√2)/3", isCorrect: true },
+          { text: "cos(180°-α) = 1/3", isCorrect: false }
+        ],
+        explanation: "Với 0° < α < 180°, sin(180°-α) = sin α > 0. Do đó khẳng định sin(180°-α) = -(√2)/3 < 0 là mệnh đề SAI."
+      },
+      {
+        id: 12,
+        level: 3,
+        question: "Kết quả rút gọn của biểu thức [(sin α + tan α)/(cos α + 1)]² + 1 bằng:",
+        diagram: null,
+        correctText: "1 / cos²α",
+        options: [
+          { text: "2", isCorrect: false },
+          { text: "1 + tan α", isCorrect: false },
+          { text: "1 / cos²α", isCorrect: true },
+          { text: "1 / sin²α", isCorrect: false }
+        ],
+        explanation: "(sin α + tan α)/(cos α + 1) = [sin α(1 + 1/cos α)]/(cos α + 1) = tan α. Khi đó tan²α + 1 = 1/cos²α."
+      }
+    ];
+
+    // BOSS SEQUENCE: 5 Core Concept Targets to bump in exact mission order
+    const BOSS_MISSIONS = [
+      {
+        mission: "ĐỤNG XE 1: Mệnh đề đúng về điểm M góc tù (90° < α < 180°)",
+        targetText: "cos α < 0",
+        distractors: ["cos α > 0", "sin α < 0", "sin α = 0"]
+      },
+      {
+        mission: "ĐỤNG XE 2: Giá trị P = sin A.cos(B+C) + cos A.sin(B+C)",
+        targetText: "P = 0",
+        distractors: ["P = 1", "P = -1", "P = 2"]
+      },
+      {
+        mission: "ĐỤNG XE 3: Khẳng định SAI trong các công thức góc bù",
+        targetText: "sin(180°-α) = -(√2)/3",
+        distractors: ["tan α = -2√2", "cos(180°-α) = 1/3", "cot α = -√2/4"]
+      },
+      {
+        mission: "ĐỤNG XE 4: Rút gọn biểu thức [(sin α + tan α)/(cos α + 1)]² + 1",
+        targetText: "1 / cos²α",
+        distractors: ["1 / sin²α", "1 + tan α", "2"]
+      },
+      {
+        mission: "ĐỤNG XE 5: Giá trị cot(180°-α) khi sin α = 3/5 (α tù)",
+        targetText: "P = 4/3",
+        distractors: ["P = -4/3", "P = 3/4", "P = -3/4"]
+      }
+    ];
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const diagramCanvas = document.getElementById('diagramCanvas');
+    const diagCtx = diagramCanvas.getContext('2d');
+
+    let gameState = 'START'; // 'START' | 'PLAYING' | 'BOSS' | 'WIN' | 'GAMEOVER'
+    let currentLevel = 1;
+    let levelQuestions = [];
+    let currentQIndex = 0;
+    let bossStep = 0;
+
+    // Student Identity Record
+    let studentData = {
+      name: '',
+      className: '',
+      stt: ''
+    };
+    let qrGenerated = false;
+
+    // Statistics
+    let score = 0;
+    let combo = 1;
+    let maxCombo = 1;
+    let correctHits = 0;
+    let wrongHits = 0;
+    let startTime = 0;
+    let timerInterval = null;
+    let elapsedSeconds = 0;
+
+    // Power-up states
+    let turboActive = false;
+    let turboTimer = 0;
+    let slowmoActive = false;
+    let slowmoTimer = 0;
+    let penaltyTimer = 0;
+
+    // Input state
+    const keys = {
+      ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+      KeyW: false, KeyS: false, KeyA: false, KeyD: false, Space: false
+    };
+
+    // Canvas sizing
+    let arenaWidth = 800;
+    let arenaHeight = 600;
+
+    class Particle {
+      constructor(x, y, color, speed, size) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = (Math.random() * 3 + 1) * (speed || 1);
+        this.vx = Math.cos(this.angle) * this.speed;
+        this.vy = Math.sin(this.angle) * this.speed;
+        this.size = size || (Math.random() * 4 + 3);
+        this.life = 1.0;
+        this.decay = Math.random() * 0.03 + 0.02;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+      }
+      draw(c) {
+        c.save();
+        c.globalAlpha = Math.max(0, this.life);
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+    }
+
+    let particles = [];
+
+    // Player Bumper Car
+    const player = {
+      x: 400,
+      y: 300,
+      radius: 26,
+      angle: -Math.PI / 2,
+      vx: 0,
+      vy: 0,
+      baseSpeed: 4.6,
+      turnSpeed: 0.075,
+      accel: 0.28,
+      friction: 0.94,
+      color: '#3b82f6', // Bright Blue
+      name: 'BẠN',
+      bumpCooldown: 0,
+
+      reset(cx, cy) {
+        this.x = cx;
+        this.y = cy;
+        this.angle = -Math.PI / 2;
+        this.vx = 0;
+        this.vy = 0;
+        this.bumpCooldown = 0;
+      },
+
+      update() {
+        if (this.bumpCooldown > 0) this.bumpCooldown--;
+
+        // Check controls
+        const isUp = keys.ArrowUp || keys.KeyW;
+        const isDown = keys.ArrowDown || keys.KeyS;
+        const isLeft = keys.ArrowLeft || keys.KeyA;
+        const isRight = keys.ArrowRight || keys.KeyD;
+
+        if (isLeft) this.angle -= this.turnSpeed;
+        if (isRight) this.angle += this.turnSpeed;
+
+        let maxSpeed = this.baseSpeed;
+        if (turboActive) maxSpeed *= 1.5;
+        if (penaltyTimer > 0) {
+          maxSpeed *= 0.55;
+          penaltyTimer--;
+        }
+
+        if (isUp) {
+          this.vx += Math.cos(this.angle) * this.accel;
+          this.vy += Math.sin(this.angle) * this.accel;
+          // Spawn little exhaust sparks
+          if (Math.random() < 0.3) {
+            const backX = this.x - Math.cos(this.angle) * (this.radius + 4);
+            const backY = this.y - Math.sin(this.angle) * (this.radius + 4);
+            particles.push(new Particle(backX, backY, '#60a5fa', 0.5, 2.5));
+          }
+        } else if (isDown) {
+          this.vx -= Math.cos(this.angle) * (this.accel * 0.65);
+          this.vy -= Math.sin(this.angle) * (this.accel * 0.65);
+        }
+
+        // Apply friction
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+
+        // Clamp speed
+        const currentSpeed = Math.hypot(this.vx, this.vy);
+        if (currentSpeed > maxSpeed) {
+          this.vx = (this.vx / currentSpeed) * maxSpeed;
+          this.vy = (this.vy / currentSpeed) * maxSpeed;
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Arena bounce boundaries
+        const r = this.radius;
+        if (this.x < r) { this.x = r; this.vx = -this.vx * 0.8; audio.playBump(); }
+        if (this.x > arenaWidth - r) { this.x = arenaWidth - r; this.vx = -this.vx * 0.8; audio.playBump(); }
+        if (this.y < r) { this.y = r; this.vy = -this.vy * 0.8; audio.playBump(); }
+        if (this.y > arenaHeight - r) { this.y = arenaHeight - r; this.vy = -this.vy * 0.8; audio.playBump(); }
+      },
+
+      draw(c) {
+        c.save();
+        c.translate(this.x, this.y);
+        c.rotate(this.angle);
+
+        // Outer rubber bumper ring
+        c.fillStyle = '#1e293b';
+        c.beginPath();
+        c.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
+        c.fill();
+        c.lineWidth = 2.5;
+        c.strokeStyle = turboActive ? '#fbbf24' : '#64748b';
+        c.stroke();
+
+        // Car main hull
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.roundRect(-this.radius + 2, -this.radius + 6, this.radius * 2 - 4, (this.radius - 6) * 2, 10);
+        c.fill();
+
+        // Windshield
+        c.fillStyle = '#bae6fd';
+        c.beginPath();
+        c.roundRect(0, -this.radius + 11, 10, (this.radius - 11) * 2, 4);
+        c.fill();
+
+        // Headlights
+        c.fillStyle = '#fef08a';
+        c.beginPath();
+        c.arc(this.radius - 4, -10, 3.5, 0, Math.PI * 2);
+        c.arc(this.radius - 4, 10, 3.5, 0, Math.PI * 2);
+        c.fill();
+
+        // Center Driver Helmet
+        c.fillStyle = '#ffffff';
+        c.beginPath();
+        c.arc(-4, 0, 7, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = '#0284c7';
+        c.beginPath();
+        c.arc(-2, 0, 4.5, 0, Math.PI * 2);
+        c.fill();
+
+        // Electrical Pole to arena ceiling with spark
+        c.strokeStyle = '#94a3b8';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(-12, 0);
+        c.lineTo(-18, 0);
+        c.stroke();
+        c.fillStyle = turboActive ? '#f59e0b' : '#38bdf8';
+        c.beginPath();
+        c.arc(-19, 0, 3, 0, Math.PI * 2);
+        c.fill();
+
+        c.restore();
+      }
+    };
+
+    // AI Bumper Car Class (Answers, Obstacles, Golden cars)
+    class TargetCar {
+      constructor(x, y, text, isCorrect, type = 'answer') {
+        this.x = x;
+        this.y = y;
+        this.radius = type === 'golden' ? 24 : 32;
+        this.text = text;
+        this.isCorrect = isCorrect;
+        this.type = type; // 'answer' | 'golden' | 'noise' | 'boss'
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = Math.random() * 1.4 + 1.1;
+        this.vx = Math.cos(this.angle) * this.speed;
+        this.vy = Math.sin(this.angle) * this.speed;
+        this.turnTimer = Math.floor(Math.random() * 60) + 30;
+        this.pulse = 0;
+
+        // Theme styling
+        if (this.type === 'golden') {
+          this.color = '#eab308'; // Gold
+        } else if (this.type === 'noise') {
+          this.color = '#ef4444'; // Red obstacle
+        } else if (this.type === 'boss') {
+          this.color = '#8b5cf6'; // Purple Boss
+        } else {
+          // Cheerful palette
+          const colors = ['#10b981', '#f97316', '#ec4899', '#06b6d4', '#84cc16'];
+          this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+      }
+
+      update() {
+        let currentSpeed = this.speed;
+        if (slowmoActive) currentSpeed *= 0.45;
+
+        // Random directional drift or erratic turns in Level 3+
+        this.turnTimer--;
+        if (this.turnTimer <= 0) {
+          const delta = (currentLevel >= 3) ? (Math.random() - 0.5) * 1.8 : (Math.random() - 0.5) * 0.8;
+          this.angle += delta;
+          this.vx = Math.cos(this.angle) * currentSpeed;
+          this.vy = Math.sin(this.angle) * currentSpeed;
+          this.turnTimer = Math.floor(Math.random() * 80) + 40;
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce walls
+        const r = this.radius;
+        if (this.x < r) { this.x = r; this.vx = Math.abs(this.vx); this.angle = Math.atan2(this.vy, this.vx); }
+        if (this.x > arenaWidth - r) { this.x = arenaWidth - r; this.vx = -Math.abs(this.vx); this.angle = Math.atan2(this.vy, this.vx); }
+        if (this.y < r) { this.y = r; this.vy = Math.abs(this.vy); this.angle = Math.atan2(this.vy, this.vx); }
+        if (this.y > arenaHeight - r) { this.y = arenaHeight - r; this.vy = -Math.abs(this.vy); this.angle = Math.atan2(this.vy, this.vx); }
+
+        this.pulse += 0.05;
+      }
+
+      draw(c) {
+        c.save();
+        c.translate(this.x, this.y);
+
+        // Outer rubber bumper ring
+        c.fillStyle = '#0f172a';
+        c.beginPath();
+        c.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
+        c.fill();
+        c.lineWidth = 2;
+        c.strokeStyle = this.type === 'golden' ? '#fde047' : (this.type === 'noise' ? '#f87171' : '#475569');
+        c.stroke();
+
+        // Car body
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.arc(0, 0, this.radius, 0, Math.PI * 2);
+        c.fill();
+
+        // Headlights pointing in moving direction
+        const hx = Math.cos(this.angle) * (this.radius - 2);
+        const hy = Math.sin(this.angle) * (this.radius - 2);
+        c.fillStyle = '#fef9c3';
+        c.beginPath();
+        c.arc(hx, hy, 4, 0, Math.PI * 2);
+        c.fill();
+
+        // Center sign / Roof board
+        if (this.type === 'golden') {
+          c.fillStyle = '#fef08a';
+          c.font = 'bold 16px Fredoka, sans-serif';
+          c.textAlign = 'center';
+          c.textBaseline = 'middle';
+          c.fillText('⭐ +100', 0, 0);
+        } else if (this.type === 'noise') {
+          c.fillStyle = '#fee2e2';
+          c.font = 'bold 12px Fredoka, sans-serif';
+          c.textAlign = 'center';
+          c.textBaseline = 'middle';
+          c.fillText('⚠️ TRÁNH!', 0, 0);
+        } else {
+          // Answer label badge on top of the car
+          const textWidth = Math.max(76, c.measureText(this.text).width + 16);
+          const boxHeight = 26;
+          c.fillStyle = 'rgba(15, 23, 42, 0.92)';
+          c.strokeStyle = '#38bdf8';
+          c.lineWidth = 1.5;
+          c.beginPath();
+          c.roundRect(-textWidth / 2, -boxHeight / 2, textWidth, boxHeight, 8);
+          c.fill();
+          c.stroke();
+
+          c.fillStyle = '#ffffff';
+          c.font = 'bold 12px "Plus Jakarta Sans", sans-serif';
+          c.textAlign = 'center';
+          c.textBaseline = 'middle';
+          c.fillText(this.text, 0, 1);
+        }
+
+        c.restore();
+      }
+    }
+
+    let targetCars = [];
+
+    /**
+     * Draw accurate trigonometric unit circle diagrams based on textbook
+     * For Question 1 (acute angle, point M in Quadrant I)
+     * For Question 2 (obtuse angle, point M in Quadrant II)
+     */
+    function drawDiagram(type) {
+      diagCtx.clearRect(0, 0, diagramCanvas.width, diagramCanvas.height);
+      const w = diagramCanvas.width;
+      const h = diagramCanvas.height;
+      const ox = w / 2;
+      const oy = h * 0.78;
+      const r = w * 0.40;
+
+      // Coordinate axes
+      diagCtx.strokeStyle = '#94a3b8';
+      diagCtx.lineWidth = 1.5;
+      // x axis
+      diagCtx.beginPath();
+      diagCtx.moveTo(ox - r - 8, oy);
+      diagCtx.lineTo(ox + r + 10, oy);
+      diagCtx.stroke();
+      // Arrow x
+      diagCtx.fillStyle = '#94a3b8';
+      diagCtx.beginPath();
+      diagCtx.moveTo(ox + r + 10, oy);
+      diagCtx.lineTo(ox + r + 5, oy - 3);
+      diagCtx.lineTo(ox + r + 5, oy + 3);
+      diagCtx.fill();
+
+      // y axis
+      diagCtx.beginPath();
+      diagCtx.moveTo(ox, oy + 8);
+      diagCtx.lineTo(ox, oy - r - 12);
+      diagCtx.stroke();
+      // Arrow y
+      diagCtx.beginPath();
+      diagCtx.moveTo(ox, oy - r - 12);
+      diagCtx.lineTo(ox - 3, oy - r - 7);
+      diagCtx.lineTo(ox + 3, oy - r - 7);
+      diagCtx.fill();
+
+      // Semi-circle arc
+      diagCtx.strokeStyle = '#f59e0b';
+      diagCtx.lineWidth = 2;
+      diagCtx.beginPath();
+      diagCtx.arc(ox, oy, r, Math.PI, 0, false);
+      diagCtx.stroke();
+
+      // Origin O, A(1), A'(-1), B(1)
+      diagCtx.fillStyle = '#cbd5e1';
+      diagCtx.font = '9px Fredoka';
+      diagCtx.fillText('O', ox - 9, oy + 9);
+      diagCtx.fillText('A', ox + r + 2, oy + 10);
+      diagCtx.fillText("A'", ox - r - 12, oy + 10);
+      diagCtx.fillText('B', ox - 9, oy - r - 2);
+
+      // Angle and Point M
+      let angleRad = 0;
+      if (type === 'q1') {
+        angleRad = Math.PI / 4; // 45 degrees (acute)
+      } else {
+        angleRad = (3 * Math.PI) / 4; // 135 degrees (obtuse)
+      }
+
+      const mx = ox + Math.cos(Math.PI - angleRad) * r;
+      const my = oy - Math.sin(Math.PI - angleRad) * r;
+
+      // Line OM
+      diagCtx.strokeStyle = '#38bdf8';
+      diagCtx.lineWidth = 2;
+      diagCtx.beginPath();
+      diagCtx.moveTo(ox, oy);
+      diagCtx.lineTo(mx, my);
+      diagCtx.stroke();
+
+      // Angle sector
+      diagCtx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+      diagCtx.beginPath();
+      diagCtx.moveTo(ox, oy);
+      diagCtx.arc(ox, oy, r * 0.35, 0, - (Math.PI - (Math.PI - angleRad)), true);
+      diagCtx.closePath();
+      diagCtx.fill();
+
+      // Angle symbol α
+      diagCtx.fillStyle = '#38bdf8';
+      diagCtx.font = 'bold 10px sans-serif';
+      if (type === 'q1') {
+        diagCtx.fillText('α', ox + 14, oy - 7);
+      } else {
+        diagCtx.fillText('α', ox - 5, oy - 14);
+      }
+
+      // Point M
+      diagCtx.fillStyle = '#ec4899';
+      diagCtx.beginPath();
+      diagCtx.arc(mx, my, 4, 0, Math.PI * 2);
+      diagCtx.fill();
+      diagCtx.fillStyle = '#ffffff';
+      diagCtx.fillText('M', mx - 2, my - 6);
+    }
+
+    /**
+     * Initializes questions for the current level and spawns the cars
+     */
+    function setupLevel(lvl) {
+      currentLevel = lvl;
+      document.getElementById('levelText').innerText = `LEVEL ${lvl}`;
+      
+      // Filter questions for this level
+      levelQuestions = QUESTION_BANK.filter(q => q.level === lvl);
+      currentQIndex = 0;
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      if (currentQIndex >= levelQuestions.length) {
+        // Progress to next stage
+        if (currentLevel < 4) {
+          showFloatingToast(`VƯỢT LEVEL ${currentLevel}! TĂNG TỐC ĐỘ! 🚀`, 'success');
+          setTimeout(() => {
+            setupLevel(currentLevel + 1);
+          }, 1200);
+        } else {
+          // ENTER BOSS STAGE
+          startBossStage();
+        }
+        return;
+      }
+
+      const q = levelQuestions[currentQIndex];
+      document.getElementById('questionCategory').innerText = `CẤP ĐỘ ${currentLevel} • CÂU ${q.id}/12`;
+      document.getElementById('questionStep').innerText = `Tiến độ: ${currentQIndex + 1}/${levelQuestions.length}`;
+      document.getElementById('questionText').innerText = q.question;
+
+      // Handle diagram display
+      const diagramBox = document.getElementById('diagramBox');
+      if (q.diagram) {
+        diagramBox.classList.remove('hidden');
+        drawDiagram(q.diagram);
+      } else {
+        diagramBox.classList.add('hidden');
+      }
+
+      // Spawn cars in arena
+      spawnCarsForQuestion(q);
+    }
+
+    function spawnCarsForQuestion(q) {
+      targetCars = [];
+
+      // Determine how many choices to show (Level 1: 3 cars; Level 2+: 4 cars)
+      let choices = [...q.options];
+      if (currentLevel === 1 && choices.length > 3) {
+        // Keep correct answer, pick 2 wrong ones
+        const correct = choices.find(c => c.isCorrect);
+        const wrongs = choices.filter(c => !c.isCorrect).slice(0, 2);
+        choices = [correct, ...wrongs].sort(() => Math.random() - 0.5);
+      } else {
+        choices.sort(() => Math.random() - 0.5);
+      }
+
+      // Spawn target option cars
+      const margin = 80;
+      choices.forEach(opt => {
+        const x = margin + Math.random() * (arenaWidth - margin * 2);
+        const y = margin + Math.random() * (arenaHeight - margin * 2);
+        targetCars.push(new TargetCar(x, y, opt.text, opt.isCorrect, 'answer'));
+      });
+
+      // Bonus Item: Golden Car in Level 2 and 4
+      if (currentLevel >= 2 && Math.random() < 0.65) {
+        const gx = margin + Math.random() * (arenaWidth - margin * 2);
+        const gy = margin + Math.random() * (arenaHeight - margin * 2);
+        targetCars.push(new TargetCar(gx, gy, '⭐ +100', false, 'golden'));
+      }
+
+      // Obstacle: Xe Nhiễu in Level 3 & 4
+      if (currentLevel >= 3) {
+        const nx = margin + Math.random() * (arenaWidth - margin * 2);
+        const ny = margin + Math.random() * (arenaHeight - margin * 2);
+        targetCars.push(new TargetCar(nx, ny, 'XE NHIỄU', false, 'noise'));
+      }
+    }
+
+    // BOSS STAGE: 5 Consecutive Ultimate Knowledge Targets
+    function startBossStage() {
+      gameState = 'BOSS';
+      bossStep = 0;
+      document.getElementById('levelText').innerText = `🔥 TRẬN CHIẾN BOSS`;
+      document.getElementById('levelBadge').className = "flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-game font-bold text-xs md:text-sm px-3 py-1.5 rounded-xl shadow-md uppercase tracking-wider pulse-glow";
+      
+      showFloatingToast(`🔥 ĐỐI ĐẦU BOSS: 5 XE CUỐI CÙNG! 🔥`, 'success');
+      loadBossStep();
+    }
+
+    function loadBossStep() {
+      if (bossStep >= BOSS_MISSIONS.length) {
+        // Complete Boss!
+        onVictory();
+        return;
+      }
+
+      const b = BOSS_MISSIONS[bossStep];
+      document.getElementById('questionCategory').innerText = `TRẬN ĐẤU BOSS • XE ${bossStep + 1}/5`;
+      document.getElementById('questionStep').innerText = `Mục tiêu ${bossStep + 1} của 5`;
+      document.getElementById('questionText').innerText = b.mission;
+      document.getElementById('diagramBox').classList.add('hidden');
+
+      targetCars = [];
+      const margin = 90;
+
+      // Correct target car
+      const cx = margin + Math.random() * (arenaWidth - margin * 2);
+      const cy = margin + Math.random() * (arenaHeight - margin * 2);
+      const correctCar = new TargetCar(cx, cy, b.targetText, true, 'boss');
+      correctCar.speed = 1.9 + bossStep * 0.2;
+      targetCars.push(correctCar);
+
+      // Distractor cars
+      b.distractors.forEach(text => {
+        const dx = margin + Math.random() * (arenaWidth - margin * 2);
+        const dy = margin + Math.random() * (arenaHeight - margin * 2);
+        const distCar = new TargetCar(dx, dy, text, false, 'answer');
+        distCar.speed = 1.8 + bossStep * 0.15;
+        targetCars.push(distCar);
+      });
+
+      // Extra noise car in later boss steps
+      if (bossStep >= 2) {
+        const nx = margin + Math.random() * (arenaWidth - margin * 2);
+        const ny = margin + Math.random() * (arenaHeight - margin * 2);
+        targetCars.push(new TargetCar(nx, ny, 'XE NHIỄU', false, 'noise'));
+      }
+    }
+
+    /**
+     * Resolves collisions between player bumper car and arena target cars
+     */
+    function checkCollisions() {
+      if (player.bumpCooldown > 0) return;
+
+      for (let i = targetCars.length - 1; i >= 0; i--) {
+        const car = targetCars[i];
+        const dx = car.x - player.x;
+        const dy = car.y - player.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < player.radius + car.radius) {
+          player.bumpCooldown = 18; // Prevent multi-triggering
+
+          // Elastic bounce impulse physics
+          const nx = dx / (dist || 1);
+          const ny = dy / (dist || 1);
+          player.vx = -nx * 6.5;
+          player.vy = -ny * 6.5;
+          car.vx = nx * 5.0;
+          car.vy = ny * 5.0;
+
+          // Spawn collision sparks
+          const hitX = (player.x + car.x) / 2;
+          const hitY = (player.y + car.y) / 2;
+          for (let p = 0; p < 14; p++) {
+            particles.push(new Particle(hitX, hitY, '#fde047', 1.6, 3.5));
+          }
+
+          // Process collision outcome
+          if (car.type === 'golden') {
+            audio.playPowerup();
+            score += 100;
+            turboActive = true;
+            turboTimer = 300; // 5 seconds at 60fps
+            document.getElementById('speedBuff').classList.remove('hidden');
+            showFloatingToast('⭐ NHẶT XE VÀNG: +100 ĐIỂM & TĂNG TỐC! ⚡', 'success');
+            targetCars.splice(i, 1);
+            updateHUD();
+            continue;
+          }
+
+          if (car.type === 'noise') {
+            audio.playWrong();
+            wrongHits++;
+            combo = 1;
+            score = Math.max(0, score - 50);
+            penaltyTimer = 90; // Slow down
+            showFloatingToast('💥 ĐỤNG XE NHIỄU! -50 ĐIỂM!', 'error');
+            updateHUD();
+            continue;
+          }
+
+          // Answer car collision
+          if (car.isCorrect) {
+            // VA CHẠM CHÍNH XÁC!
+            audio.playCorrect();
+            correctHits++;
+            score += 100 * combo;
+            combo++;
+            if (combo > maxCombo) maxCombo = combo;
+
+            showFloatingToast(`VA CHẠM CHÍNH XÁC! 🎉 (+${100 * (combo - 1)})`, 'success');
+            updateHUD();
+
+            // Next question transition
+            if (gameState === 'BOSS') {
+              bossStep++;
+              setTimeout(() => { loadBossStep(); }, 700);
+            } else {
+              currentQIndex++;
+              setTimeout(() => { loadQuestion(); }, 700);
+            }
+            break;
+          } else {
+            // ĐỤNG NHẦM XE!
+            audio.playWrong();
+            wrongHits++;
+            combo = 1;
+            penaltyTimer = 75; // Temporary deceleration
+            showFloatingToast('ĐỤNG NHẦM XE! MẤT COMBO! 💥', 'error');
+            updateHUD();
+          }
+        }
+      }
+    }
+
+    // Interactive Toast Banner popups
+    function showFloatingToast(message, type) {
+      const alertEl = document.getElementById('collisionAlert');
+      const boxEl = document.getElementById('collisionAlertBox');
+
+      boxEl.innerText = message;
+      if (type === 'success') {
+        boxEl.className = "px-6 py-3 rounded-2xl shadow-2xl font-game font-extrabold text-base md:text-2xl tracking-wider text-white border-2 bg-gradient-to-r from-emerald-600 to-teal-600 border-emerald-300 shadow-emerald-500/50";
+      } else {
+        boxEl.className = "px-6 py-3 rounded-2xl shadow-2xl font-game font-extrabold text-base md:text-2xl tracking-wider text-white border-2 bg-gradient-to-r from-rose-600 to-red-600 border-rose-300 shadow-red-500/50";
+      }
+
+      alertEl.classList.remove('opacity-0', 'scale-50');
+      alertEl.classList.add('opacity-100', 'scale-100');
+
+      setTimeout(() => {
+        alertEl.classList.remove('opacity-100', 'scale-100');
+        alertEl.classList.add('opacity-0', 'scale-50');
+      }, 950);
+    }
+
+    function updateHUD() {
+      document.getElementById('scoreDisplay').innerText = score;
+      document.getElementById('comboDisplay').innerText = `x${combo}`;
+      if (combo > 1) {
+        document.getElementById('comboDisplay').className = "text-amber-400 font-game text-base md:text-lg animate-pulse";
+      } else {
+        document.getElementById('comboDisplay').className = "text-emerald-400 font-game text-sm md:text-base";
+      }
+
+      if (studentData.name) {
+        document.getElementById('hudStudentInfo').innerText = `${studentData.name} (${studentData.className} - #${studentData.stt})`;
+        document.getElementById('studentPill').classList.remove('hidden');
+      }
+    }
+
+    function startTimer() {
+      elapsedSeconds = 0;
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2, '0');
+        const secs = String(elapsedSeconds % 60).padStart(2, '0');
+        document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function renderReviewSection() {
+      const container = document.getElementById('reviewContainer');
+      container.innerHTML = '';
+
+      QUESTION_BANK.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900/90 border border-slate-800 p-3 rounded-xl hover:border-indigo-500/50 transition";
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <span class="font-bold text-yellow-400 text-xs">Câu ${q.id}:</span>
+            <span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800/80 px-2 py-0.5 rounded font-mono font-bold">
+              Đ/A: ${q.correctText}
+            </span>
+          </div>
+          <p class="text-slate-300 text-xs font-medium mt-1">${q.question}</p>
+          <div class="mt-2 text-[11px] text-indigo-300 bg-indigo-950/40 p-2 rounded-lg border border-indigo-900/40">
+            <strong>💡 Giải thích chi tiết:</strong> ${q.explanation}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function onVictory() {
+      gameState = 'WIN';
+      stopTimer();
+      audio.stopBgm();
+      audio.playVictory();
+
+      document.getElementById('resStudentName').innerText = studentData.name || 'Thí sinh tự do';
+      document.getElementById('resStudentClass').innerText = studentData.className || '10';
+      document.getElementById('resStudentSTT').innerText = studentData.stt || '01';
+
+      // Set results
+      document.getElementById('resultTitle').innerText = "CHINH PHỤC XE ĐỤNG KIẾN THỨC!";
+      document.getElementById('resultSubtitle').innerText = "Chúc mừng bạn đã vượt qua tất cả 4 Level và hạ gục BOSS 5 Xe xuất sắc!";
+      document.getElementById('resScore').innerText = score;
+      document.getElementById('resCombo').innerText = `x${maxCombo}`;
+      document.getElementById('resCorrect').innerText = correctHits;
+      document.getElementById('resWrong').innerText = wrongHits;
+      document.getElementById('resTime').innerText = document.getElementById('timerDisplay').innerText;
+
+      renderReviewSection();
+      document.getElementById('modalResult').classList.remove('hidden');
+    }
+
+    function resizeCanvas() {
+      const wrapper = document.getElementById('arenaWrapper');
+      const rect = wrapper.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      arenaWidth = canvas.width;
+      arenaHeight = canvas.height;
+    }
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+    });
+
+    // Main Game Render Loop
+    function gameLoop() {
+      ctx.clearRect(0, 0, arenaWidth, arenaHeight);
+
+      if (gameState === 'PLAYING' || gameState === 'BOSS') {
+        // Buff timers
+        if (turboActive) {
+          turboTimer--;
+          if (turboTimer <= 0) {
+            turboActive = false;
+            document.getElementById('speedBuff').classList.add('hidden');
+          }
+        }
+
+        // Update player
+        player.update();
+
+        // Update target cars
+        targetCars.forEach(car => car.update());
+
+        // Check vehicle bumps
+        checkCollisions();
+
+        // Update particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          particles[i].update();
+          if (particles[i].life <= 0) {
+            particles.splice(i, 1);
+          }
+        }
+
+        // Draw target cars
+        targetCars.forEach(car => car.draw(ctx));
+
+        // Draw player car
+        player.draw(ctx);
+
+        // Draw particles
+        particles.forEach(p => p.draw(ctx));
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function setupQRCode() {
+      if (qrGenerated) return;
+      const qrcodeBox = document.getElementById('qrcodeBox');
+      qrcodeBox.innerHTML = '';
+      
+      // Determine actual accessible URL (fallback to current location or origin)
+      let gameUrl = window.location.href;
+      if (!gameUrl || gameUrl.startsWith('about:') || gameUrl.includes('blob:')) {
+        gameUrl = window.location.origin || 'https://gemini.google.com';
+      }
+
+      document.getElementById('qrLinkInput').value = gameUrl;
+
+      // Generate sharp 190x190 QR code
+      if (typeof QRCode !== 'undefined') {
+        try {
+          new QRCode(qrcodeBox, {
+            text: gameUrl,
+            width: 190,
+            height: 190,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+          qrGenerated = true;
+        } catch (err) {
+          console.warn('QR code gen fallback:', err);
+        }
+      }
+    }
+
+    function openQRModal() {
+      setupQRCode();
+      document.getElementById('modalQR').classList.remove('hidden');
+    }
+
+    function closeQRModal() {
+      document.getElementById('modalQR').classList.add('hidden');
+    }
+
+    function validateAndStart() {
+      const nameInput = document.getElementById('inputName');
+      const classInput = document.getElementById('inputClass');
+      const sttInput = document.getElementById('inputSTT');
+      const errBox = document.getElementById('formError');
+      const errMsg = document.getElementById('formErrorMsg');
+
+      const nameVal = nameInput.value.trim();
+      const classVal = classInput.value.trim();
+      const sttVal = sttInput.value.trim();
+
+      if (!nameVal) {
+        errBox.classList.remove('hidden');
+        errMsg.innerText = "Vui lòng nhập Họ và Tên của học sinh!";
+        nameInput.focus();
+        return;
+      }
+      if (!classVal) {
+        errBox.classList.remove('hidden');
+        errMsg.innerText = "Vui lòng nhập Lớp học (Ví dụ: 10A1)!";
+        classInput.focus();
+        return;
+      }
+      if (!sttVal) {
+        errBox.classList.remove('hidden');
+        errMsg.innerText = "Vui lòng nhập Số thứ tự (STT)!";
+        sttInput.focus();
+        return;
+      }
+
+      // Save valid student data
+      errBox.classList.add('hidden');
+      studentData = {
+        name: nameVal,
+        className: classVal,
+        stt: sttVal
+      };
+
+      // Proceed to reset and start
+      resetAndStartGame();
+    }
+
+    function resetAndStartGame() {
+      // Full reset of state variables
+      score = 0;
+      combo = 1;
+      maxCombo = 1;
+      correctHits = 0;
+      wrongHits = 0;
+      turboActive = false;
+      slowmoActive = false;
+      penaltyTimer = 0;
+      bossStep = 0;
+      gameState = 'PLAYING';
+
+      // UI HUD Visibility
+      document.getElementById('liveHud').classList.remove('hidden');
+      document.getElementById('questionContainer').classList.remove('hidden');
+      document.getElementById('modalStart').classList.add('hidden');
+      document.getElementById('modalGuide').classList.add('hidden');
+      document.getElementById('modalResult').classList.add('hidden');
+      document.getElementById('modalQR').classList.add('hidden');
+      document.getElementById('speedBuff').classList.add('hidden');
+
+      resizeCanvas();
+      player.reset(arenaWidth / 2, arenaHeight / 2);
+      updateHUD();
+      startTimer();
+      audio.startBgm();
+
+      // Start Level 1
+      setupLevel(1);
+    }
+
+    function returnToHome() {
+      stopTimer();
+      audio.stopBgm();
+      gameState = 'START';
+      document.getElementById('liveHud').classList.add('hidden');
+      document.getElementById('questionContainer').classList.add('hidden');
+      document.getElementById('modalResult').classList.add('hidden');
+      document.getElementById('modalQR').classList.add('hidden');
+      document.getElementById('modalStart').classList.remove('hidden');
+    }
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+      if (keys.hasOwnProperty(e.code)) {
+        keys[e.code] = true;
+      }
+      if (e.code === 'Space') {
+        // Instant boost key
+        if (!turboActive) {
+          turboActive = true;
+          turboTimer = 180;
+          document.getElementById('speedBuff').classList.remove('hidden');
+          audio.playPowerup();
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (keys.hasOwnProperty(e.code)) {
+        keys[e.code] = false;
+      }
+    });
+
+    // Touch D-Pad bindings
+    function bindTouchButton(btnId, keyCode) {
+      const btn = document.getElementById(btnId);
+      const press = (e) => { e.preventDefault(); keys[keyCode] = true; };
+      const release = (e) => { e.preventDefault(); keys[keyCode] = false; };
+      btn.addEventListener('mousedown', press);
+      btn.addEventListener('mouseup', release);
+      btn.addEventListener('mouseleave', release);
+      btn.addEventListener('touchstart', press, { passive: false });
+      btn.addEventListener('touchend', release, { passive: false });
+    }
+
+    bindTouchButton('btnUp', 'ArrowUp');
+    bindTouchButton('btnDown', 'ArrowDown');
+    bindTouchButton('btnLeft', 'ArrowLeft');
+    bindTouchButton('btnRight', 'ArrowRight');
+
+    // Turbo button
+    document.getElementById('btnTurbo').addEventListener('click', () => {
+      turboActive = true;
+      turboTimer = 220;
+      document.getElementById('speedBuff').classList.remove('hidden');
+      audio.playPowerup();
+    });
+
+    // Start game triggers validation first
+    document.getElementById('btnStartGame').addEventListener('click', validateAndStart);
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      if (studentData.name) {
+        resetAndStartGame();
+      } else {
+        returnToHome();
+      }
+    });
+    document.getElementById('btnPlayAgain').addEventListener('click', resetAndStartGame);
+    document.getElementById('btnBackHome').addEventListener('click', returnToHome);
+
+    // QR Code modal triggers
+    document.getElementById('btnOpenQR').addEventListener('click', openQRModal);
+    document.getElementById('btnStartQR').addEventListener('click', openQRModal);
+    document.getElementById('btnCloseQR').addEventListener('click', closeQRModal);
+    document.getElementById('btnQRCloseBottom').addEventListener('click', closeQRModal);
+
+    // Copy game link button using document.execCommand('copy') for iframe safety
+    document.getElementById('btnCopyLink').addEventListener('click', () => {
+      const input = document.getElementById('qrLinkInput');
+      input.select();
+      input.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        const toast = document.getElementById('copyToast');
+        toast.classList.remove('opacity-0');
+        setTimeout(() => toast.classList.add('opacity-0'), 2000);
+      } catch (err) {
+        console.warn('Copy failed', err);
+      }
+    });
+
+    document.getElementById('btnGuide').addEventListener('click', () => {
+      document.getElementById('modalGuide').classList.remove('hidden');
+    });
+    document.getElementById('btnOpenGuide').addEventListener('click', () => {
+      document.getElementById('modalGuide').classList.remove('hidden');
+    });
+    document.getElementById('btnCloseGuide').addEventListener('click', () => {
+      document.getElementById('modalGuide').classList.add('hidden');
+    });
+    document.getElementById('btnGuideUnderstood').addEventListener('click', () => {
+      document.getElementById('modalGuide').classList.add('hidden');
+      if (gameState === 'START') {
+        validateAndStart();
+      }
+    });
+
+    // Sound toggle
+    document.getElementById('btnSound').addEventListener('click', () => {
+      const muted = audio.toggleMute();
+      document.getElementById('soundIcon').innerText = muted ? '🔇' : '🔊';
+    });
+
+    // Fullscreen toggle
+    document.getElementById('btnFullscreen').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    });
+
+    // Mouse / Touch Steering directly inside Arena Canvas
+    let isCanvasInteracting = false;
+    function handlePointerSteer(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const targetX = clientX - rect.left;
+      const targetY = clientY - rect.top;
+      const targetAngle = Math.atan2(targetY - player.y, targetX - player.x);
+      player.angle = targetAngle;
+      // Propel forward gently towards touch pointer
+      player.vx += Math.cos(targetAngle) * (player.accel * 1.15);
+      player.vy += Math.sin(targetAngle) * (player.accel * 1.15);
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      isCanvasInteracting = true;
+      handlePointerSteer(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (isCanvasInteracting) handlePointerSteer(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', () => { isCanvasInteracting = false; });
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        isCanvasInteracting = true;
+        handlePointerSteer(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+    canvas.addEventListener('touchmove', (e) => {
+      if (isCanvasInteracting && e.touches.length > 0) {
+        handlePointerSteer(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+    canvas.addEventListener('touchend', () => { isCanvasInteracting = false; });
+
+    // Initial load setup
+    window.onload = () => {
+      resizeCanvas();
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
